@@ -1,8 +1,8 @@
 #include <stdio.h>
+#include <cstdio>
 #include <iostream>
-#include <list>
-#include <string.h>
-#include <cstring>
+#include <string.h>  
+//#include <cstring>
 
 #define TAM 1000
 
@@ -11,6 +11,72 @@ using namespace std;
 typedef struct nome{
     char fullName[40], invertedName[40];
 } NOME;
+
+void calcPrefix(char p[], int lps[]) {
+    lps[0] = 0;
+    int i = 0, j = 1;
+    while (j < strlen(p)) {
+        if (p[i] == p[j]) {
+            lps[j] = i + 1;
+            i++;
+            j++;
+        } else if (p[i] != p[j] && i != 0) {
+            i = lps[i - 1];
+        } else if (p[i] != p[j]) {
+            lps[j] = 0;
+            j++;
+        }
+    }
+}
+
+int kmp(char t[], char p[]) {
+
+    int lps[strlen(p)];
+    calcPrefix(p, lps);
+
+    int i = 0, j = 0, k, l = 0;
+
+    while (i <= strlen(t)) {
+        int r = i - j;
+        k = j;
+        for (l = i; j < strlen(p); j++, l++) {
+            if (t[l] == p[j]) {
+                k++;
+            } else {
+                break;
+            }
+        }
+        if (k == strlen(p)) {
+            return r;
+        }
+        if (lps[j - 1] == 0) {
+            i = l + 1;
+        } else {
+            i = l;
+        }
+        j = lps[j - 1];
+    }
+
+    return -1;
+}
+
+int stringMatching(char t[], char p[]) { // O(|T| * |P|)
+    int i, j, k, l;
+    for (i = 0; i <= strlen(t) - strlen(p); i++) {
+        k = 0;
+        for (j = 0, l = i; j < strlen(p); j++, l++) {
+            if (t[l] == p[j]) {
+                k++;
+            } else {
+                break;
+            }
+        }
+        if (k == strlen(p)) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 void printList(NOME nomes[], int us){
 
@@ -38,62 +104,39 @@ void pushToList(NOME nomes[], char nome[], int row, int check){
     }
 }
 
+void search(NOME nomes[]){
 
-void mergeA (NOME nomes[], int s, int m, int e){
+    char pattern[30];
+    int kmpResult;
 
-    NOME tmp[(e - s) + 1];
-    int i = s, j = m + 1, k = 0;
+    system("clear");
+    printf("\nDigite o nome que \ndeseja pesquisar: ");
+    cin >> pattern;
 
-    while(i <= m && j <= e){
-
-        if(strcmp(nomes[i].fullName, nomes[j].fullName) < 0)
-            strcpy(tmp[k++].fullName, nomes[i++].fullName);
-
-        else
-            strcpy(tmp[k++].fullName, nomes[j++].fullName);
+    printf("\nRESULTADOS\n");
+    for (int i = 0; i < TAM; i++)
+    {
+        kmpResult = kmp(nomes[i].fullName, pattern);
+        if(kmpResult != -1){
+            printf("- %s\n", nomes[i].fullName);
+        }
     }
-
-    for(; i <= m; i++, k++)
-        strcpy(tmp[k].fullName, nomes[i].fullName);
-
-
-    for(; j <= e; j++, k++)
-        strcpy(tmp[k].fullName, nomes[j].fullName);
-
-
-    for(i = s, k = 0; i <= e; i++, k++)
-        strcpy(nomes[i].fullName, tmp[k].fullName);
-
-}
-
-void mergeSort(NOME nomes[], int start, int theEnd){
-    if (start < theEnd) {
-        int middle = (start + theEnd) / 2;
-        mergeSort(nomes, start, middle);
-        mergeSort(nomes, middle +1, theEnd);
-
-        mergeA(nomes, start, middle, theEnd);
-       
-    }
+    
 }
 
 int hub(NOME nomes[]){
 
-    int option, sorted, sortedUS;
+    int option;
 
-    system("cls");
-    printf("\n[1] - Ordem alfabetica\n");
+    system("clear");
+    printf("\n[1] - Pesquisar nome\n");
     printf("[2] - Imprimir lista\n");
     printf("[0] - Encerrar programa\n");
     scanf(" %d", &option);
 
     switch(option){
     case 1:
-        if(sorted != 1){
-            mergeSort(nomes, 0, TAM);
-            sorted = 1;
-        }
-        printList(nomes, 0);
+        search(nomes);
         return option;
         break;
     case 2:
