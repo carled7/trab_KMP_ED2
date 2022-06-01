@@ -9,7 +9,7 @@
 using namespace std;
 
 typedef struct nome{
-    char fullName[40], invertedName[40];
+    char fullName[40];
 } NOME;
 
 void calcPrefix(char p[], int lps[]) {
@@ -36,13 +36,14 @@ int kmp(char t[], char p[]) {
 
     int i = 0, j = 0, k, l = 0;
 
-    while (i <= strlen(t)) {
+    while (i < strlen(t)) {
         int r = i - j;
         k = j;
         for (l = i; j < strlen(p); j++, l++) {
             if (t[l] == p[j]) {
                 k++;
             } else {
+                ++j;
                 break;
             }
         }
@@ -60,65 +61,42 @@ int kmp(char t[], char p[]) {
     return -1;
 }
 
-int stringMatching(char t[], char p[]) { // O(|T| * |P|)
-    int i, j, k, l;
-    for (i = 0; i <= strlen(t) - strlen(p); i++) {
-        k = 0;
-        for (j = 0, l = i; j < strlen(p); j++, l++) {
-            if (t[l] == p[j]) {
-                k++;
-            } else {
-                break;
-            }
-        }
-        if (k == strlen(p)) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-void printList(NOME nomes[], int us){
+void printList(NOME nomes[]){
 
     char buffer;
-    if(!us){
-        for(int i = 0; i < TAM; i++){
-            printf("%d -  %s\n", i + 1, nomes[i].fullName);
-        }
-    }else{
-        for(int i = 0; i < TAM; i++){
-            printf("%d -  %s\n", i + 1, nomes[i].invertedName);
-        }
+  
+    for(int i = 0; i < TAM; i++){
+        printf("%d -  %s\n", i + 1, nomes[i].fullName);
     }
+
     printf("\nAperte qualquer tecla para voltar\n");
     cin >> buffer;
 
 }
 
-void pushToList(NOME nomes[], char nome[], int row, int check){
+void pushToList(NOME nomes[], char nome[], int row){
 
-    if(check){
-        strcpy(nomes[row].fullName, nome);
-    }else{
-        strcpy(nomes[row].invertedName, nome);
-    }
+
+    strcpy(nomes[row].fullName, nome);
+
 }
 
 void search(NOME nomes[]){
 
-    char pattern[30];
+    char pattern[20];
     int kmpResult;
 
     system("clear");
-    printf("\nDigite o nome que \ndeseja pesquisar: ");
-    cin >> pattern;
+    printf("\nDigite o nome que deseja pesquisar: ");
+    scanf(" %[^\n]", pattern);
+    //cin >> pattern;
 
     printf("\nRESULTADOS\n");
     for (int i = 0; i < TAM; i++)
     {
         kmpResult = kmp(nomes[i].fullName, pattern);
         if(kmpResult != -1){
-            printf("- %s\n", nomes[i].fullName);
+            printf("[%d] %s\n", i+1, nomes[i].fullName);
         }
     }
     
@@ -128,7 +106,7 @@ int hub(NOME nomes[]){
 
     int option;
 
-    system("clear");
+    //system("clear");
     printf("\n[1] - Pesquisar nome\n");
     printf("[2] - Imprimir lista\n");
     printf("[0] - Encerrar programa\n");
@@ -140,7 +118,7 @@ int hub(NOME nomes[]){
         return option;
         break;
     case 2:
-        printList(nomes, 0);
+        printList(nomes);
         return option;
         break;
     case 0:
@@ -165,7 +143,7 @@ void readFile(NOME nomes[]){
 
         fscanf(nome,"%[^\n]\n", buffer);
         strcat(buffer, "\0");
-        pushToList(nomes, buffer, row, 1);
+        pushToList(nomes, buffer, row);
 
         row++;
     }
